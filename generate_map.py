@@ -93,6 +93,18 @@ STOP_COLORS = {
     "streetcar": "#f28c28",
 }
 
+RAPIDRIDE_STOP_CLUSTER_DISTANCE_METERS = 20
+RAPIDRIDE_DIRECTIONAL_PAIR_DISTANCE_METERS = 150
+CARDINAL_DIRECTION_PATTERN = re.compile(r"^(?:N|S|E|W|NE|NW|SE|SW)\b\.?\s*", re.IGNORECASE)
+TRAILING_CARDINAL_DIRECTION_PATTERN = re.compile(r"\s+\b(?:N|S|E|W|NE|NW|SE|SW)\b\.?$", re.IGNORECASE)
+TRAILING_STREET_TYPE_PATTERN = re.compile(
+    r"\s+\b(?:"
+    r"ST|STREET|AVE|AVENUE|WAY|RD|ROAD|DR|DRIVE|BLVD|BOULEVARD|"
+    r"PL|PLACE|LN|LANE|CT|COURT|TER|TERRACE|PKWY|PARKWAY|HWY|HIGHWAY"
+    r")\b\.?$",
+    re.IGNORECASE,
+)
+
 
 def to_key(value):
     normalized = re.sub(r"[^a-z0-9]+", "_", (value or "").strip().lower())
@@ -172,6 +184,30 @@ def fetch_geojson(url, params=None):
     return response.json()
 
 
+def fetch_all_geojson_features(url, params=None, page_size=1000):
+    base_params = dict(params or {})
+    all_features = []
+    offset = 0
+
+    while True:
+        page_params = dict(base_params)
+        page_params["resultOffset"] = offset
+        page_params["resultRecordCount"] = page_size
+
+        page = fetch_geojson(url, params=page_params)
+        features = page.get("features", [])
+        if not features:
+            break
+
+        all_features.extend(features)
+        if len(features) < page_size:
+            break
+
+        offset += page_size
+
+    return all_features
+
+
 def split_line_geometry(geometry):
     geom_type = geometry.get("type")
     if geom_type == "LineString":
@@ -225,6 +261,279 @@ def contains_rapidride_ref(value):
     return any(token in RAPIDRIDE_REFS for token in tokens)
 
 
+def get_rapidride_refs_from_stop_properties(properties):
+    route_text_candidates = [
+        properties.get("ROUTE_LIST"),
+        properties.get("ROUTES"),
+        properties.get("ROUTE"),
+    ]
+    route_tokens = set()
+    for value in route_text_candidates:
+        route_tokens.update(
+            token.strip().upper()
+            for token in re.split(r"[;,\s/]+", str(value or ""))
+            if token.strip()
+        )
+
+    refs = sorted(token for token in route_tokens if token in RAPIDRIDE_REFS)
+    return refs
+
+
+def get_rapidride_stop_name(properties):
+    def clean_name(value):
+        return re.sub(r"\s+", " ", str(value or "")).strip()
+
+    on_street_name = (
+        properties.get("ON_STREET_NAME")
+        or properties.get("HASTUS_STREET_NAME")
+        or ""
+    )
+    cross_street_name = (
+        properties.get("CROSS_STREET_NAME")
+        or properties.get("HASTUS_CROSS_STREET_NAME")
+        or properties.get("CF_CROSS_STREETNAME")
+        or ""
+    )
+
+    on_street_name = clean_name(on_street_name)
+    cross_street_name = clean_name(cross_street_name)
+
+    primary_name = clean_name(properties.get("STOP_NAME") or properties.get("NAME") or "")
+    if primary_name:
+        if on_street_name and "&" in primary_name:
+            primary_parts = [part.strip() for part in primary_name.split("&") if part.strip()]
+            if len(primary_parts) == 2:
+                simplified_on_street = normalize_stop_name_for_cluster(
+                    simplify_rapidride_street_name(on_street_name)
+                )
+                first_part = normalize_stop_name_for_cluster(
+                    simplify_rapidride_street_name(primary_parts[0])
+                )
+                second_part = normalize_stop_name_for_cluster(
+                    simplify_rapidride_street_name(primary_parts[1])
+                )
+                if first_part == simplified_on_street:
+                    return simplify_rapidride_stop_label(primary_parts[1])
+                if second_part == simplified_on_street:
+                    return simplify_rapidride_stop_label(primary_parts[0])
+
+        if on_street_name and cross_street_name and (
+            normalize_stop_name_for_cluster(primary_name)
+            == normalize_stop_name_for_cluster(on_street_name)
+        ):
+            return simplify_rapidride_stop_label(cross_street_name)
+        return simplify_rapidride_stop_label(primary_name)
+
+    if on_street_name and cross_street_name:
+        return simplify_rapidride_stop_label(cross_street_name)
+
+    if on_street_name:
+        return simplify_rapidride_stop_label(on_street_name)
+    if cross_street_name:
+        return simplify_rapidride_stop_label(cross_street_name)
+
+    stop_id = properties.get("STOP_ID") or properties.get("OBJECTID")
+    if stop_id:
+        return f"Stop {stop_id}"
+
+    return ""
+
+
+def get_rapidride_cross_street(properties):
+    def clean_name(value):
+        return re.sub(r"\s+", " ", str(value or "")).strip()
+
+    return simplify_rapidride_stop_label(clean_name(
+        properties.get("CROSS_STREET_NAME")
+        or properties.get("HASTUS_CROSS_STREET_NAME")
+        or properties.get("CF_CROSS_STREETNAME")
+        or ""
+    ))
+
+
+def simplify_rapidride_street_name(name):
+    cleaned = re.sub(r"\s+", " ", str(name or "")).strip()
+    if not cleaned:
+        return ""
+
+    simplified = CARDINAL_DIRECTION_PATTERN.sub("", cleaned)
+    while True:
+        updated = TRAILING_CARDINAL_DIRECTION_PATTERN.sub("", simplified)
+        updated = TRAILING_STREET_TYPE_PATTERN.sub("", updated)
+        updated = re.sub(r"\s+", " ", updated).strip(" ,")
+        if updated == simplified:
+            break
+        simplified = updated
+
+    return simplified or cleaned
+
+
+def simplify_rapidride_stop_label(label):
+    cleaned_label = re.sub(r"\s+", " ", str(label or "")).strip()
+    if not cleaned_label:
+        return ""
+
+    if "/" in cleaned_label:
+        parts = [part.strip() for part in cleaned_label.split("/")]
+        simplified_parts = [simplify_rapidride_street_name(part) for part in parts if part.strip()]
+        return " / ".join(part for part in simplified_parts if part)
+
+    return simplify_rapidride_street_name(cleaned_label)
+
+
+def normalize_stop_name_for_cluster(name):
+    return re.sub(r"\s+", " ", (name or "").strip().lower())
+
+
+def distance_meters(lat1, lon1, lat2, lon2):
+    earth_radius_m = 6371000
+    lat1_rad = math.radians(lat1)
+    lat2_rad = math.radians(lat2)
+    d_lat = lat2_rad - lat1_rad
+    d_lon = math.radians(lon2 - lon1)
+    a = (
+        math.sin(d_lat / 2) ** 2
+        + math.cos(lat1_rad) * math.cos(lat2_rad) * (math.sin(d_lon / 2) ** 2)
+    )
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(max(0.0, 1 - a)))
+    return earth_radius_m * c
+
+
+def register_rapidride_cluster_point(stop_points, cluster_points_by_stop_id, stop_id, lat, lon):
+    points = cluster_points_by_stop_id.setdefault(stop_id, [])
+    points.append((lat, lon))
+
+    stop = stop_points.get(stop_id)
+    if stop is None:
+        return
+
+    avg_lat = sum(point_lat for point_lat, _ in points) / len(points)
+    avg_lon = sum(point_lon for _, point_lon in points) / len(points)
+    stop["coords"] = (avg_lat, avg_lon)
+
+
+def update_rapidride_merged_stop_name(stop_points, stop_id, incoming_cross_street):
+    stop = stop_points.get(stop_id)
+    if stop is None:
+        return
+
+    incoming_cross_street = (incoming_cross_street or "").strip()
+    if not incoming_cross_street:
+        return
+
+    existing_cross_streets = stop.setdefault("cross_streets", [])
+    normalized_existing = {
+        normalize_stop_name_for_cluster(cross_street) for cross_street in existing_cross_streets
+    }
+    normalized_incoming = normalize_stop_name_for_cluster(incoming_cross_street)
+
+    if normalized_incoming and normalized_incoming not in normalized_existing:
+        existing_cross_streets.append(incoming_cross_street)
+
+    if len(existing_cross_streets) >= 2:
+        stop["name"] = f"{existing_cross_streets[0]} / {existing_cross_streets[1]}"
+    elif len(existing_cross_streets) == 1:
+        stop["name"] = existing_cross_streets[0]
+
+
+def resolve_rapidride_stop_id(
+    stop_points,
+    cluster_ids_by_name_and_line,
+    cluster_ids_by_line,
+    cluster_points_by_stop_id,
+    fallback_stop_id,
+    lat,
+    lon,
+    stop_name,
+    stop_cross_street,
+    line_key,
+):
+    line_existing_ids = cluster_ids_by_line.setdefault(line_key, [])
+    normalized_name = normalize_stop_name_for_cluster(stop_name)
+
+    for existing_id in line_existing_ids:
+        existing_stop = stop_points.get(existing_id)
+        existing_name = normalize_stop_name_for_cluster((existing_stop or {}).get("name", ""))
+        for existing_lat, existing_lon in cluster_points_by_stop_id.get(existing_id, []):
+            if distance_meters(lat, lon, existing_lat, existing_lon) <= RAPIDRIDE_STOP_CLUSTER_DISTANCE_METERS:
+                register_rapidride_cluster_point(
+                    stop_points,
+                    cluster_points_by_stop_id,
+                    existing_id,
+                    lat,
+                    lon,
+                )
+                update_rapidride_merged_stop_name(stop_points, existing_id, stop_cross_street)
+                return existing_id
+
+            if (
+                distance_meters(lat, lon, existing_lat, existing_lon)
+                <= RAPIDRIDE_DIRECTIONAL_PAIR_DISTANCE_METERS
+            ):
+                register_rapidride_cluster_point(
+                    stop_points,
+                    cluster_points_by_stop_id,
+                    existing_id,
+                    lat,
+                    lon,
+                )
+                update_rapidride_merged_stop_name(stop_points, existing_id, stop_cross_street)
+                return existing_id
+
+    if not normalized_name:
+        line_existing_ids.append(fallback_stop_id)
+        register_rapidride_cluster_point(
+            stop_points,
+            cluster_points_by_stop_id,
+            fallback_stop_id,
+            lat,
+            lon,
+        )
+        return fallback_stop_id
+
+    cluster_key = (line_key, normalized_name)
+    existing_ids = cluster_ids_by_name_and_line.setdefault(cluster_key, [])
+
+    for existing_id in existing_ids:
+        for existing_lat, existing_lon in cluster_points_by_stop_id.get(existing_id, []):
+            if distance_meters(lat, lon, existing_lat, existing_lon) <= RAPIDRIDE_STOP_CLUSTER_DISTANCE_METERS:
+                register_rapidride_cluster_point(
+                    stop_points,
+                    cluster_points_by_stop_id,
+                    existing_id,
+                    lat,
+                    lon,
+                )
+                update_rapidride_merged_stop_name(stop_points, existing_id, stop_cross_street)
+                return existing_id
+
+        existing_stop = stop_points.get(existing_id)
+        if existing_stop is not None:
+            existing_lat, existing_lon = existing_stop.get("coords", (None, None))
+            if existing_lat is not None and existing_lon is not None:
+                if distance_meters(lat, lon, existing_lat, existing_lon) <= RAPIDRIDE_STOP_CLUSTER_DISTANCE_METERS:
+                    register_rapidride_cluster_point(
+                        stop_points,
+                        cluster_points_by_stop_id,
+                        existing_id,
+                        lat,
+                        lon,
+                    )
+                    update_rapidride_merged_stop_name(stop_points, existing_id, stop_cross_street)
+                    return existing_id
+
+    existing_ids.append(fallback_stop_id)
+    line_existing_ids.append(fallback_stop_id)
+    register_rapidride_cluster_point(
+        stop_points,
+        cluster_points_by_stop_id,
+        fallback_stop_id,
+        lat,
+        lon,
+    )
+    return fallback_stop_id
+
+
 def is_point_near_route_segments(lat, lon, segments, threshold=0.0012):
     if not segments:
         return False
@@ -251,7 +560,7 @@ def is_point_near_route_segments(lat, lon, segments, threshold=0.0012):
 def nearest_line_key_for_point(lat, lon, segments, threshold=0.0012):
     nearest_line_key = None
     nearest_distance_sq = None
-    threshold_sq = threshold * threshold
+    threshold_sq = None if threshold is None else threshold * threshold
 
     for segment in segments:
         line_key = segment.get("line_key")
@@ -261,7 +570,7 @@ def nearest_line_key_for_point(lat, lon, segments, threshold=0.0012):
             d_lat = seg_lat - lat
             d_lon = seg_lon - lon
             distance_sq = (d_lat * d_lat) + (d_lon * d_lon)
-            if distance_sq > threshold_sq:
+            if threshold_sq is not None and distance_sq > threshold_sq:
                 continue
             if nearest_distance_sq is None or distance_sq < nearest_distance_sq:
                 nearest_distance_sq = distance_sq
@@ -277,6 +586,20 @@ def to_streetcar_line_key(route_name):
     if "south lake union" in normalized:
         return "streetcar_south_lake_union"
     return ""
+
+
+def normalize_streetcar_stop_name(stop_name):
+    cleaned = (stop_name or "").strip()
+    cleaned = re.sub(r"\s+", " ", cleaned)
+    cleaned = re.sub(r"\s+(inbound|outbound)\s*$", "", cleaned, flags=re.IGNORECASE)
+    return cleaned.strip()
+
+
+def normalize_streetcar_line_display_name(route_name):
+    cleaned = re.sub(r"\s+", " ", (route_name or "").strip())
+    if cleaned.lower() == "first hill alignment":
+        return "First Hill"
+    return cleaned
 
 
 def add_or_update_stop(stop_points, stop_id, coords, name, color, priority, mode_key, line_key):
@@ -383,12 +706,22 @@ def collect_rapidride(route_segments, stop_points):
                 "line_key": f"rapidride_{route_ref.lower()}",
             })
 
-    rapidride_segments = [segment for segment in route_segments if segment.get("mode_key") == "rapidride"]
+    stop_features = fetch_all_geojson_features(
+        RAPIDRIDE_STOPS_URL,
+        params={"where": "1=1", "outFields": "*", "f": "geojson"},
+    )
+    cluster_ids_by_name_and_line = {}
+    cluster_ids_by_line = {}
+    cluster_points_by_stop_id = {}
 
-    stop_features = fetch_geojson(RAPIDRIDE_STOPS_URL, params={"where": "1=1", "outFields": "*", "f": "geojson"}).get("features", [])
     for feature in stop_features:
         props = feature.get("properties", {})
-        route_list = props.get("ROUTE_LIST") or props.get("ROUTES") or props.get("ROUTE")
+        if props.get("IN_SERVICE_FLAG") not in {None, "", "Y"}:
+            continue
+
+        matched_refs = get_rapidride_refs_from_stop_properties(props)
+        if not matched_refs:
+            continue
 
         geometry = feature.get("geometry", {})
         if geometry.get("type") != "Point":
@@ -398,28 +731,23 @@ def collect_rapidride(route_segments, stop_points):
             continue
         lon, lat = normalize_to_wgs84(lon, lat)
 
-        route_tokens = {
-            token.strip().upper()
-            for token in re.split(r"[;,\s/]+", str(route_list or ""))
-            if token.strip()
-        }
-        matched_refs = sorted(token for token in route_tokens if token in RAPIDRIDE_REFS)
-        explicitly_rapidride = bool(matched_refs)
-        near_rapidride = is_point_near_route_segments(lat, lon, rapidride_segments)
-        if not explicitly_rapidride and not near_rapidride:
-            continue
+        line_key = f"rapidride_{matched_refs[0].lower()}"
 
-        line_key = "rapidride_unknown"
-        if matched_refs:
-            line_key = f"rapidride_{matched_refs[0].lower()}"
-        else:
-            for segment in rapidride_segments:
-                if is_point_near_route_segments(lat, lon, [segment], threshold=0.0012):
-                    line_key = segment.get("line_key", "rapidride_unknown")
-                    break
-
-        stop_id = str(props.get("STOP_ID") or props.get("OBJECTID") or f"rr_{lat}_{lon}")
-        stop_name = props.get("STOP_NAME") or props.get("NAME") or ""
+        stop_name = get_rapidride_stop_name(props)
+        stop_cross_street = get_rapidride_cross_street(props)
+        fallback_stop_id = str(props.get("STOP_ID") or props.get("OBJECTID") or f"rr_{lat}_{lon}")
+        stop_id = resolve_rapidride_stop_id(
+            stop_points,
+            cluster_ids_by_name_and_line,
+            cluster_ids_by_line,
+            cluster_points_by_stop_id,
+            fallback_stop_id,
+            lat,
+            lon,
+            stop_name,
+            stop_cross_street,
+            line_key,
+        )
         add_or_update_stop(
             stop_points,
             stop_id,
@@ -430,6 +758,8 @@ def collect_rapidride(route_segments, stop_points):
             "rapidride",
             line_key,
         )
+        if stop_id in stop_points:
+            update_rapidride_merged_stop_name(stop_points, stop_id, stop_cross_street)
 
 
 def collect_streetcar(route_segments, stop_points):
@@ -438,6 +768,7 @@ def collect_streetcar(route_segments, stop_points):
     for feature in features:
         props = feature.get("properties", {})
         route_name = props.get("LINE") or props.get("ROUTE") or props.get("NAME") or "Seattle Streetcar"
+        route_display_name = normalize_streetcar_line_display_name(route_name)
         line_key = to_streetcar_line_key(route_name)
         if not line_key:
             continue
@@ -450,7 +781,7 @@ def collect_streetcar(route_segments, stop_points):
                 "coords": coords,
                 "color": LINE_COLORS["streetcar"],
                 "weight": 4,
-                "tooltip": route_name,
+                "tooltip": route_display_name,
                 "mode_key": "streetcar",
                 "line_key": line_key,
             }
@@ -468,12 +799,29 @@ def collect_streetcar(route_segments, stop_points):
             continue
         lon, lat = normalize_to_wgs84(lon, lat)
 
-        stop_id = str(props.get("OBJECTID") or props.get("STOP_ID") or f"sc_{lat}_{lon}")
-        stop_name = props.get("STOP") or props.get("STOP_NAME") or props.get("NAME") or props.get("STATION") or ""
-        route_name = props.get("LINE") or props.get("ROUTE") or ""
+        raw_stop_name = props.get("STOP") or props.get("STOP_NAME") or props.get("NAME") or props.get("STATION") or ""
+        stop_name = normalize_streetcar_stop_name(raw_stop_name)
+        route_name = (
+            props.get("LINE")
+            or props.get("ROUTE")
+            or props.get("STATION")
+            or props.get("LINE_NAME")
+            or props.get("ROUTE_NAME")
+            or ""
+        )
         line_key = to_streetcar_line_key(route_name)
         if not line_key:
-            line_key = nearest_line_key_for_point(lat, lon, streetcar_segments) or "streetcar_unknown"
+            line_key = (
+                nearest_line_key_for_point(lat, lon, streetcar_segments)
+                or nearest_line_key_for_point(lat, lon, streetcar_segments, threshold=None)
+                or "streetcar_unknown"
+            )
+
+        if stop_name:
+            stop_id = f"sc_{line_key}_{to_key(stop_name)}"
+        else:
+            stop_id = str(props.get("OBJECTID") or props.get("STOP_ID") or f"sc_{lat}_{lon}")
+
         add_or_update_stop(
             stop_points,
             stop_id,
@@ -519,10 +867,13 @@ def add_filter_controls(map_object, line_labels):
         )
         category_section_html += (
             '<div style="margin-bottom:8px;">'
-            f'<div><input type="checkbox" id="{category_id}" class="category-toggle" '
+            f'<div style="display:flex; align-items:center; gap:4px;">'
+            f'<button type="button" class="collapse-toggle" data-target="lines-{category_key}" '
+            'style="border:0; background:transparent; padding:0 2px; cursor:pointer; font-size:12px; line-height:1;">▾</button>'
+            f'<input type="checkbox" id="{category_id}" class="category-toggle" '
             f'data-category="{category_key}" checked> '
-            f'<label for="{category_id}" style="font-weight:600;">{category_label}</label></div>'
-            f'<div style="display:flex; flex-direction:column; gap:3px; margin-left:16px; margin-top:3px;">{line_items_html}</div>'
+            f'<label for="{category_id}" style="font-weight:600; cursor:pointer;">{category_label}</label></div>'
+            f'<div id="lines-{category_key}" style="display:flex; flex-direction:column; gap:3px; margin-left:16px; margin-top:3px;">{line_items_html}</div>'
             '</div>'
         )
 
@@ -542,8 +893,17 @@ def add_filter_controls(map_object, line_labels):
         font-size: 12px;
         line-height: 1.4;
     ">
-        <div style="font-weight: 600; margin-bottom: 6px;">Transit Filters</div>
-        <div style="display:flex; flex-direction:column;">{category_section_html}</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px;">
+            <div style="font-weight: 600;">Transit Filters</div>
+            <button type="button" id="toggle-filter-panel" style="border:1px solid #bbb; border-radius:4px; background:#fff; padding:1px 6px; font-size:12px; cursor:pointer;">Hide</button>
+        </div>
+        <div id="transit-filter-body" style="display:flex; flex-direction:column;">
+            <div style="margin-bottom:8px;">
+                <input type="checkbox" id="toggle-stop-names" checked>
+                <label for="toggle-stop-names">Show stop names</label>
+            </div>
+            {category_section_html}
+        </div>
     </div>
     <script>
     (function() {{
@@ -585,6 +945,88 @@ def add_filter_controls(map_object, line_labels):
             }});
         }}
 
+        function readStateFromUrl() {{
+            const params = new URLSearchParams(window.location.search || '');
+            const categories = new Set();
+            const lines = new Set();
+
+            const categoriesParam = (params.get('categories') || '').trim();
+            if (categoriesParam) {{
+                categoriesParam.split(',').map((value) => value.trim()).filter(Boolean).forEach((value) => {{
+                    categories.add(value);
+                }});
+            }}
+
+            const linesParam = (params.get('lines') || '').trim();
+            if (linesParam) {{
+                linesParam.split(',').map((value) => value.trim()).filter(Boolean).forEach((value) => {{
+                    lines.add(value);
+                }});
+            }}
+
+            const stopNamesParam = params.get('stop_names');
+            let showStopNames = null;
+            if (stopNamesParam === '1' || stopNamesParam === '0') {{
+                showStopNames = stopNamesParam === '1';
+            }}
+
+            return {{
+                hasCategories: categoriesParam.length > 0,
+                hasLines: linesParam.length > 0,
+                categories,
+                lines,
+                showStopNames,
+            }};
+        }}
+
+        function writeStateToUrl() {{
+            if (typeof window === 'undefined' || !window.history || !window.history.replaceState) {{
+                return;
+            }}
+
+            const params = new URLSearchParams(window.location.search || '');
+            const enabledCategories = Array.from(readEnabledSet('.category-toggle', 'data-category')).sort();
+            const enabledLines = Array.from(readEnabledSet('.line-toggle', 'data-line')).sort();
+            const stopNameToggle = document.getElementById('toggle-stop-names');
+            const showStopNames = !stopNameToggle || stopNameToggle.checked;
+
+            params.set('categories', enabledCategories.join(','));
+            params.set('lines', enabledLines.join(','));
+            params.set('stop_names', showStopNames ? '1' : '0');
+
+            const nextQuery = params.toString();
+            const nextUrl = `${{window.location.pathname}}${{nextQuery ? `?${{nextQuery}}` : ''}}${{window.location.hash || ''}}`;
+            window.history.replaceState(null, '', nextUrl);
+        }}
+
+        function applyStateFromUrl() {{
+            const state = readStateFromUrl();
+
+            if (state.hasLines) {{
+                document.querySelectorAll('.line-toggle').forEach((checkbox) => {{
+                    const line = checkbox.getAttribute('data-line');
+                    checkbox.checked = state.lines.has(line);
+                }});
+            }}
+
+            if (state.hasCategories) {{
+                document.querySelectorAll('.category-toggle').forEach((checkbox) => {{
+                    const category = checkbox.getAttribute('data-category');
+                    checkbox.checked = state.categories.has(category);
+                    checkbox.indeterminate = false;
+                }});
+            }}
+
+            const stopNameToggle = document.getElementById('toggle-stop-names');
+            if (stopNameToggle && state.showStopNames !== null) {{
+                stopNameToggle.checked = state.showStopNames;
+            }}
+
+            document.querySelectorAll('.category-toggle').forEach((checkbox) => {{
+                updateCategoryState(checkbox.getAttribute('data-category'));
+            }});
+        }}
+
         function setVisible(element, visible) {{
             const opacity = visible ? '' : '0';
             if (element.tagName === 'path' || element.tagName === 'circle') {{
@@ -600,14 +1042,23 @@ def add_filter_controls(map_object, line_labels):
         function applyTransitFilters() {{
             const enabledCategories = readEnabledSet('.category-toggle', 'data-category');
             const enabledLines = readEnabledSet('.line-toggle', 'data-line');
+            const stopNameToggle = document.getElementById('toggle-stop-names');
+            const showStopNames = !stopNameToggle || stopNameToggle.checked;
 
             document.querySelectorAll('.transit-feature').forEach((element) => {{
                 const modeClass = Array.from(element.classList).find((cls) => cls.startsWith('mode-'));
                 const lineClass = Array.from(element.classList).find((cls) => cls.startsWith('line-'));
                 const mode = modeClass ? modeClass.substring(5) : null;
                 const line = lineClass ? lineClass.substring(5) : null;
+                const isStopLabel = element.classList.contains('transit-stop-label');
 
-                const visible = Boolean(mode && line && enabledCategories.has(mode) && enabledLines.has(line));
+                const visible = Boolean(
+                    mode
+                    && line
+                    && enabledCategories.has(mode)
+                    && enabledLines.has(line)
+                    && (!isStopLabel || showStopNames)
+                );
                 setVisible(element, visible);
             }});
         }}
@@ -625,12 +1076,42 @@ def add_filter_controls(map_object, line_labels):
             return null;
         }}
 
+        function setCollapsed(toggleButton, targetElement, collapsed) {{
+            targetElement.style.display = collapsed ? 'none' : 'flex';
+            toggleButton.textContent = collapsed ? '▸' : '▾';
+        }}
+
+        const filterPanelBody = document.getElementById('transit-filter-body');
+        const filterPanelToggle = document.getElementById('toggle-filter-panel');
+        if (filterPanelBody && filterPanelToggle) {{
+            let panelCollapsed = false;
+            filterPanelToggle.addEventListener('click', () => {{
+                panelCollapsed = !panelCollapsed;
+                filterPanelBody.style.display = panelCollapsed ? 'none' : 'flex';
+                filterPanelToggle.textContent = panelCollapsed ? 'Show' : 'Hide';
+            }});
+        }}
+
+        document.querySelectorAll('.collapse-toggle').forEach((button) => {{
+            const targetId = button.getAttribute('data-target');
+            const target = document.getElementById(targetId);
+            if (!target) {{
+                return;
+            }}
+            let collapsed = false;
+            button.addEventListener('click', () => {{
+                collapsed = !collapsed;
+                setCollapsed(button, target, collapsed);
+            }});
+        }});
+
         document.querySelectorAll('.category-toggle').forEach((checkbox) => {{
             checkbox.addEventListener('change', (event) => {{
                 const category = event.target.getAttribute('data-category');
                 setCategoryLines(category, event.target.checked);
                 updateCategoryState(category);
                 applyTransitFilters();
+                writeStateToUrl();
             }});
         }});
 
@@ -639,12 +1120,20 @@ def add_filter_controls(map_object, line_labels):
                 const category = event.target.getAttribute('data-category');
                 updateCategoryState(category);
                 applyTransitFilters();
+                writeStateToUrl();
             }});
         }});
 
-        document.querySelectorAll('.category-toggle').forEach((checkbox) => {{
-            updateCategoryState(checkbox.getAttribute('data-category'));
-        }});
+        const stopNameToggle = document.getElementById('toggle-stop-names');
+        if (stopNameToggle) {{
+            stopNameToggle.addEventListener('change', () => {{
+                applyTransitFilters();
+                writeStateToUrl();
+            }});
+        }}
+
+        applyStateFromUrl();
+        writeStateToUrl();
 
         window.setTimeout(applyTransitFilters, 400);
         const leafletMap = getLeafletMap();
@@ -755,15 +1244,15 @@ def generate_map():
     collect_light_rail(route_segments, stop_points)
 
     line_labels = {
-        "line_1": "Light Rail - 1 Line",
-        "line_2": "Light Rail - 2 Line",
+        "line_1": "1 Line",
+        "line_2": "2 Line",
     }
 
     for segment in sorted(route_segments, key=lambda s: s['priority']):
         mode_key = segment.get("mode_key", "unknown")
         line_key = segment.get("line_key", "unknown")
         if line_key.startswith("rapidride_"):
-            line_labels[line_key] = f"RapidRide {line_key.split('_', 1)[1].upper()}"
+            line_labels[line_key] = line_key.split('_', 1)[1].upper()
         elif line_key.startswith("streetcar_"):
             line_labels[line_key] = segment.get("tooltip", "Streetcar")
 
@@ -795,13 +1284,13 @@ def generate_map():
             folium.Marker(
                 location=stop['coords'],
                 icon=folium.DivIcon(
-                    class_name=f"transit-feature mode-{mode_key} line-{line_key}",
-                    icon_size=(220, 14),
+                    class_name=f"transit-feature transit-stop-label mode-{mode_key} line-{line_key}",
+                    icon_size=None,
                     icon_anchor=(8, -8),
                     html=(
-                        f"<div class=\"transit-feature mode-{mode_key} line-{line_key}\" style=\"font-size: 10px; color: #222; "
+                        f"<div class=\"transit-feature transit-stop-label mode-{mode_key} line-{line_key}\" style=\"font-size: 10px; color: #222; "
                         "background: rgba(255, 255, 255, 0.75); padding: 1px 3px; "
-                        "border-radius: 3px; white-space: nowrap;\">"
+                        "border-radius: 3px; white-space: nowrap; display: inline-block; width: max-content;\">"
                         f"{stop['name']}"
                         "</div>"
                     )
@@ -809,7 +1298,7 @@ def generate_map():
             ).add_to(m)
 
         if line_key.startswith("rapidride_") and line_key not in line_labels and line_key != "rapidride_unknown":
-            line_labels[line_key] = f"RapidRide {line_key.split('_', 1)[1].upper()}"
+            line_labels[line_key] = line_key.split('_', 1)[1].upper()
         elif line_key.startswith("streetcar_") and line_key not in line_labels:
             line_labels[line_key] = "Streetcar"
 
@@ -819,7 +1308,7 @@ def generate_map():
     add_filter_controls(m, line_labels)
 
     # Save the map
-    html_output_file = "Seattle_Transit_Map.html"
+    html_output_file = "index.html"
     m.save(html_output_file)
     print(f"Transit map successfully generated and saved to {html_output_file}")
 

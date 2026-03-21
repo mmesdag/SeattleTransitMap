@@ -1,0 +1,19 @@
+# Python cache/bytecode
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+
+# Local environment files
+.env
+
+# macOS
+.DS_Store
+
+# Junie local workspace artifacts
+.junie/
+
+# Generated static image artifact (HTML is kept for deployment)
+Seattle_Transit_Map.png
