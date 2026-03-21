@@ -14,10 +14,171 @@ from generate_map import (
     simplify_rapidride_stop_label,
     fetch_all_geojson_features,
     collect_rapidride,
+    filter_rapidride_stops_near_other_modes,
+    filter_rapidride_stops_by_min_distance,
 )
 
 
 class GenerateMapHelperTests(unittest.TestCase):
+    def test_filter_rapidride_stops_by_min_distance_removes_close_rapidride_stop(self):
+        stop_points = {
+            "rr_1": {
+                "coords": (47.6000, -122.3300),
+                "name": "Stop A",
+                "color": "#e31837",
+                "priority": 0,
+                "mode_key": "rapidride",
+                "line_key": "rapidride_e",
+            },
+            "rr_2": {
+                "coords": (47.6010, -122.3300),
+                "name": "Stop B",
+                "color": "#e31837",
+                "priority": 0,
+                "mode_key": "rapidride",
+                "line_key": "rapidride_e",
+            },
+            "lr_1": {
+                "coords": (47.6011, -122.3300),
+                "name": "Light Rail Stop",
+                "color": "#008f5a",
+                "priority": 2,
+                "mode_key": "light_rail",
+                "line_key": "line_1",
+            },
+        }
+
+        filter_rapidride_stops_by_min_distance(stop_points, min_distance_meters=500)
+
+        self.assertIn("rr_1", stop_points)
+        self.assertNotIn("rr_2", stop_points)
+        self.assertIn("lr_1", stop_points)
+
+    def test_filter_rapidride_stops_by_min_distance_keeps_far_rapidride_stops(self):
+        stop_points = {
+            "rr_1": {
+                "coords": (47.6000, -122.3300),
+                "name": "Stop A",
+                "color": "#e31837",
+                "priority": 0,
+                "mode_key": "rapidride",
+                "line_key": "rapidride_e",
+            },
+            "rr_2": {
+                "coords": (47.6100, -122.3300),
+                "name": "Stop B",
+                "color": "#e31837",
+                "priority": 0,
+                "mode_key": "rapidride",
+                "line_key": "rapidride_e",
+            },
+        }
+
+        filter_rapidride_stops_by_min_distance(stop_points, min_distance_meters=500)
+
+        self.assertIn("rr_1", stop_points)
+        self.assertIn("rr_2", stop_points)
+
+    def test_filter_rapidride_stops_by_min_distance_does_not_remove_non_rapidride(self):
+        stop_points = {
+            "rr_1": {
+                "coords": (47.6000, -122.3300),
+                "name": "Stop A",
+                "color": "#e31837",
+                "priority": 0,
+                "mode_key": "rapidride",
+                "line_key": "rapidride_e",
+            },
+            "sc_1": {
+                "coords": (47.6005, -122.3300),
+                "name": "Streetcar Stop",
+                "color": "#f28c28",
+                "priority": 1,
+                "mode_key": "streetcar",
+                "line_key": "streetcar_first_hill",
+            },
+        }
+
+        filter_rapidride_stops_by_min_distance(stop_points, min_distance_meters=500)
+
+        self.assertIn("rr_1", stop_points)
+        self.assertIn("sc_1", stop_points)
+
+    def test_filter_rapidride_stops_near_other_modes_removes_nearby_rapidride_stop(self):
+        stop_points = {
+            "rr_1": {
+                "coords": (47.6000, -122.3300),
+                "name": "RapidRide Stop",
+                "color": "#e31837",
+                "priority": 0,
+                "mode_key": "rapidride",
+                "line_key": "rapidride_e",
+            },
+            "lr_1": {
+                "coords": (47.6005, -122.3300),
+                "name": "Light Rail Stop",
+                "color": "#008f5a",
+                "priority": 2,
+                "mode_key": "light_rail",
+                "line_key": "line_1",
+            },
+        }
+
+        filter_rapidride_stops_near_other_modes(stop_points, exclusion_distance_meters=1000)
+
+        self.assertNotIn("rr_1", stop_points)
+        self.assertIn("lr_1", stop_points)
+
+    def test_filter_rapidride_stops_near_other_modes_keeps_far_rapidride_stop(self):
+        stop_points = {
+            "rr_1": {
+                "coords": (47.6000, -122.3300),
+                "name": "RapidRide Stop",
+                "color": "#e31837",
+                "priority": 0,
+                "mode_key": "rapidride",
+                "line_key": "rapidride_e",
+            },
+            "sc_1": {
+                "coords": (47.6200, -122.3300),
+                "name": "Streetcar Stop",
+                "color": "#f28c28",
+                "priority": 1,
+                "mode_key": "streetcar",
+                "line_key": "streetcar_first_hill",
+            },
+        }
+
+        filter_rapidride_stops_near_other_modes(stop_points, exclusion_distance_meters=1000)
+
+        self.assertIn("rr_1", stop_points)
+        self.assertIn("sc_1", stop_points)
+
+    def test_filter_rapidride_stops_near_other_modes_disabled_keeps_all_stops(self):
+        stop_points = {
+            "rr_1": {
+                "coords": (47.6000, -122.3300),
+                "name": "RapidRide Stop",
+                "color": "#e31837",
+                "priority": 0,
+                "mode_key": "rapidride",
+                "line_key": "rapidride_e",
+            },
+            "lr_1": {
+                "coords": (47.6005, -122.3300),
+                "name": "Light Rail Stop",
+                "color": "#008f5a",
+                "priority": 2,
+                "mode_key": "light_rail",
+                "line_key": "line_1",
+            },
+        }
+
+        filter_rapidride_stops_near_other_modes(stop_points, exclusion_distance_meters=0)
+
+        self.assertIn("rr_1", stop_points)
+        self.assertIn("lr_1", stop_points)
+
     def test_fetch_all_geojson_features_paginates(self):
         responses = [
             {"features": [{"id": 1}, {"id": 2}]},

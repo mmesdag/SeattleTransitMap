@@ -1,0 +1,2039 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3366935806974,
+          47.611542590890416
+        ]
+      },
+      "properties": {
+        "id": "1",
+        "name": "Westlake",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.28152732477525,
+          47.53798941557531
+        ]
+      },
+      "properties": {
+        "id": "10",
+        "name": "Othello",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.30039599598683,
+          47.62053732035066
+        ]
+      },
+      "properties": {
+        "id": "109",
+        "name": "24th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_g",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.27932865088661,
+          47.52239398041371
+        ]
+      },
+      "properties": {
+        "id": "11",
+        "name": "Rainier Beach",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.28800795184313,
+          47.464009581628645
+        ]
+      },
+      "properties": {
+        "id": "12",
+        "name": "Tukwila International Blvd",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.32819192027547,
+          47.70304558177966
+        ]
+      },
+      "properties": {
+        "id": "13",
+        "name": "Northgate",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3768048316235,
+          47.690556314179105
+        ]
+      },
+      "properties": {
+        "id": "13600",
+        "name": "85th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_d",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.37676868048848,
+          47.679360254883875
+        ]
+      },
+      "properties": {
+        "id": "13660",
+        "name": "70th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_d",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.37621437922209,
+          47.668691099664436
+        ]
+      },
+      "properties": {
+        "id": "13721",
+        "name": "Market",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_d",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.37622115075384,
+          47.653671639475974
+        ]
+      },
+      "properties": {
+        "id": "13770",
+        "name": "Emerson",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_d",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.37620930308918,
+          47.640554575921946
+        ]
+      },
+      "properties": {
+        "id": "13830",
+        "name": "Wheeler",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_d",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.31585727514249,
+          47.67664044029197
+        ]
+      },
+      "properties": {
+        "id": "14",
+        "name": "Roosevelt",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.36098249351964,
+          47.62459975918091
+        ]
+      },
+      "properties": {
+        "id": "14038",
+        "name": "3rd",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_d",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.31423109485334,
+          47.66043027615024
+        ]
+      },
+      "properties": {
+        "id": "15",
+        "name": "U District",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.32012590954567,
+          47.619062799787194
+        ]
+      },
+      "properties": {
+        "id": "16",
+        "name": "Capitol Hill",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.34164041198179,
+          47.774372363581676
+        ]
+      },
+      "properties": {
+        "id": "16100",
+        "name": "Ashworth",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_e",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.37075659299288,
+          47.5683749777846
+        ]
+      },
+      "properties": {
+        "id": "19930",
+        "name": "Yancy / Bradford",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_c",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3359624176648,
+          47.607817827420874
+        ]
+      },
+      "properties": {
+        "id": "2",
+        "name": "University Street",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.38712369129388,
+          47.5611317309333
+        ]
+      },
+      "properties": {
+        "id": "20041",
+        "name": "California",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_c",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3870396894266,
+          47.55206916847179
+        ]
+      },
+      "properties": {
+        "id": "20090",
+        "name": "Findlay",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_c",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3907409538271,
+          47.53958028415867
+        ]
+      },
+      "properties": {
+        "id": "20170",
+        "name": "Myrtle",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_c",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.39271735520425,
+          47.52978090733845
+        ]
+      },
+      "properties": {
+        "id": "20220",
+        "name": "Rose",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_c",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.36545335888837,
+          47.5173632745364
+        ]
+      },
+      "properties": {
+        "id": "21250",
+        "name": "26th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_h",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.36096509851214,
+          47.53892825045129
+        ]
+      },
+      "properties": {
+        "id": "21450",
+        "name": "Myrtle",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_h",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.36291886768319,
+          47.55748047757946
+        ]
+      },
+      "properties": {
+        "id": "22050",
+        "name": "Hudson",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_h",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.36046215717315,
+          47.52777795816735
+        ]
+      },
+      "properties": {
+        "id": "22165",
+        "name": "Thistle",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_h",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.30362324230946,
+          47.65006621507632
+        ]
+      },
+      "properties": {
+        "id": "24",
+        "name": "University of Washington",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.29681378237747,
+          47.44538413547603
+        ]
+      },
+      "properties": {
+        "id": "25",
+        "name": "Airport / SeaTac",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.2977113739295,
+          47.42270459416456
+        ]
+      },
+      "properties": {
+        "id": "26",
+        "name": "S. 200th Street",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.36347019366201,
+          47.70262349072136
+        ]
+      },
+      "properties": {
+        "id": "28680",
+        "name": "7th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_d",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.33115798856193,
+          47.60256797168583
+        ]
+      },
+      "properties": {
+        "id": "3",
+        "name": "Pioneer Square",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.32793829477488,
+          47.598357728571315
+        ]
+      },
+      "properties": {
+        "id": "4",
+        "name": "International District / Chinatown",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.2146257546688,
+          47.48140186672235
+        ]
+      },
+      "properties": {
+        "id": "45320",
+        "name": "Shattuck",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_f",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.20105342618172,
+          47.49812373639023
+        ]
+      },
+      "properties": {
+        "id": "46504",
+        "name": "Garden / Park",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_f",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.33512482581258,
+          47.46335143036052
+        ]
+      },
+      "properties": {
+        "id": "47646",
+        "name": "1st",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_f",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.32709043860359,
+          47.59111102633983
+        ]
+      },
+      "properties": {
+        "id": "5",
+        "name": "Stadium",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.34699253651496,
+          47.47067972326735
+        ]
+      },
+      "properties": {
+        "id": "51403",
+        "name": "148th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_h",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.34823304940159,
+          47.48081276275041
+        ]
+      },
+      "properties": {
+        "id": "51471",
+        "name": "136th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_h",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.34995705581083,
+          47.49357414910453
+        ]
+      },
+      "properties": {
+        "id": "51551",
+        "name": "122nd",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_h",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.35514396809384,
+          47.50273289672913
+        ]
+      },
+      "properties": {
+        "id": "51600",
+        "name": "112th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_h",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.35387060404402,
+          47.51186541137706
+        ]
+      },
+      "properties": {
+        "id": "51651",
+        "name": "102nd",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_h",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.26839101838394,
+          47.46511633447325
+        ]
+      },
+      "properties": {
+        "id": "54202",
+        "name": "52nd / 53rd",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_f",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.22332627197227,
+          47.473219826952814
+        ]
+      },
+      "properties": {
+        "id": "55927",
+        "name": "7th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_f",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.24406425258769,
+          47.45811408434694
+        ]
+      },
+      "properties": {
+        "id": "58028",
+        "name": "Strander",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_f",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.23220532891693,
+          47.46553940473515
+        ]
+      },
+      "properties": {
+        "id": "59878",
+        "name": "16th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_f",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3273593278265,
+          47.58107726582293
+        ]
+      },
+      "properties": {
+        "id": "6",
+        "name": "SODO",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.31228585674074,
+          47.348871140607265
+        ]
+      },
+      "properties": {
+        "id": "60729",
+        "name": "283rd",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_a",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.30317007698575,
+          47.36947819026808
+        ]
+      },
+      "properties": {
+        "id": "60760",
+        "name": "260th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_a",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.29753099907744,
+          47.4014453746526
+        ]
+      },
+      "properties": {
+        "id": "60810",
+        "name": "224th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_a",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.2955055460607,
+          47.43448579548832
+        ]
+      },
+      "properties": {
+        "id": "61100",
+        "name": "188th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_a",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3120915900997,
+          47.33529510740408
+        ]
+      },
+      "properties": {
+        "id": "61280",
+        "name": "Dash Point",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_a",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.31316757362944,
+          47.32606524637126
+        ]
+      },
+      "properties": {
+        "id": "61300",
+        "name": "308th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_a",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3453972139025,
+          47.6388930699305
+        ]
+      },
+      "properties": {
+        "id": "6320",
+        "name": "Lynn",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_e",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.15377015632569,
+          47.617151803436606
+        ]
+      },
+      "properties": {
+        "id": "68150",
+        "name": "140th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_b",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.13240727542126,
+          47.618360474965854
+        ]
+      },
+      "properties": {
+        "id": "68750",
+        "name": "10th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_b",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.12812466827316,
+          47.682226271380244
+        ]
+      },
+      "properties": {
+        "id": "68805",
+        "name": "160th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_b",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.34525896148386,
+          47.733566833026224
+        ]
+      },
+      "properties": {
+        "id": "6950",
+        "name": "145th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_e",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.31171751089703,
+          47.57950513179511
+        ]
+      },
+      "properties": {
+        "id": "7",
+        "name": "Beacon Hill",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.14495429700763,
+          47.68093621849821
+        ]
+      },
+      "properties": {
+        "id": "73108",
+        "name": "87th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_b",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.14329481213596,
+          47.667129097844516
+        ]
+      },
+      "properties": {
+        "id": "73130",
+        "name": "Old Redmond",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_b",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.14327612754369,
+          47.655193759772274
+        ]
+      },
+      "properties": {
+        "id": "73240",
+        "name": "51st",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_b",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3473325273255,
+          47.66168148183514
+        ]
+      },
+      "properties": {
+        "id": "75408",
+        "name": "46th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_e",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.34545113267461,
+          47.74504766262713
+        ]
+      },
+      "properties": {
+        "id": "75790",
+        "name": "160th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_e",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.34570003142409,
+          47.755821119409035
+        ]
+      },
+      "properties": {
+        "id": "75881",
+        "name": "175th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_e",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3469859630358,
+          47.67612444288215
+        ]
+      },
+      "properties": {
+        "id": "7630",
+        "name": "Linden / 65th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_e",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.34450178151775,
+          47.68696286612544
+        ]
+      },
+      "properties": {
+        "id": "7710",
+        "name": "80th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_e",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3446085085267,
+          47.6978220067929
+        ]
+      },
+      "properties": {
+        "id": "7770",
+        "name": "95th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_e",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.34481404567433,
+          47.71235398634494
+        ]
+      },
+      "properties": {
+        "id": "7850",
+        "name": "115th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_e",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.34497564793764,
+          47.72334921306181
+        ]
+      },
+      "properties": {
+        "id": "7900",
+        "name": "130th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_e",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.29764453754878,
+          47.57655614026086
+        ]
+      },
+      "properties": {
+        "id": "8",
+        "name": "Mount Baker",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.30296489478957,
+          47.4651162348679
+        ]
+      },
+      "properties": {
+        "id": "80150",
+        "name": "24th",
+        "mode_key": "rapidride",
+        "line_key": "rapidride_f",
+        "priority": 0,
+        "color": "#e31837"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.29268969227978,
+          47.559735363829695
+        ]
+      },
+      "properties": {
+        "id": "9",
+        "name": "Columbia City",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.30384804861225,
+          47.315860743806645
+        ]
+      },
+      "properties": {
+        "id": "lr_47.315860743806645_-122.30384804861225",
+        "name": "Federal Way Transit Center",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.29738458770115,
+          47.35937440813217
+        ]
+      },
+      "properties": {
+        "id": "lr_47.35937440813217_-122.29738458770115",
+        "name": "South 272nd Street",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.2944094307786,
+          47.389494007717786
+        ]
+      },
+      "properties": {
+        "id": "lr_47.389494007717786_-122.2944094307786",
+        "name": "Kent/Des Moines",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.1903940023409,
+          47.5865580712581
+        ]
+      },
+      "properties": {
+        "id": "lr_47.5865580712581_-122.1903940023409",
+        "name": "South Bellevue",
+        "mode_key": "light_rail",
+        "line_key": "line_2",
+        "priority": 2,
+        "color": "#005b9f"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.23322985385403,
+          47.58820019677088
+        ]
+      },
+      "properties": {
+        "id": "lr_47.58820019677088_-122.23322985385403",
+        "name": "Mercer Island",
+        "mode_key": "light_rail",
+        "line_key": "line_2",
+        "priority": 2,
+        "color": "#005b9f"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.30450672328743,
+          47.59030100053903
+        ]
+      },
+      "properties": {
+        "id": "lr_47.59030100053903_-122.30450672328743",
+        "name": "Judkins Park",
+        "mode_key": "light_rail",
+        "line_key": "line_2",
+        "priority": 2,
+        "color": "#005b9f"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.19114544494728,
+          47.608189743770396
+        ]
+      },
+      "properties": {
+        "id": "lr_47.608189743770396_-122.19114544494728",
+        "name": "East Main",
+        "mode_key": "light_rail",
+        "line_key": "line_2",
+        "priority": 2,
+        "color": "#005b9f"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.19208263070303,
+          47.61522521039987
+        ]
+      },
+      "properties": {
+        "id": "lr_47.61522521039987_-122.19208263070303",
+        "name": "Bellevue Downtown",
+        "mode_key": "light_rail",
+        "line_key": "line_2",
+        "priority": 2,
+        "color": "#005b9f"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.18376013735877,
+          47.6179694210937
+        ]
+      },
+      "properties": {
+        "id": "lr_47.6179694210937_-122.18376013735877",
+        "name": "Wilburton",
+        "mode_key": "light_rail",
+        "line_key": "line_2",
+        "priority": 2,
+        "color": "#005b9f"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.17857145560349,
+          47.62377527188213
+        ]
+      },
+      "properties": {
+        "id": "lr_47.62377527188213_-122.17857145560349",
+        "name": "Spring District/120th",
+        "mode_key": "light_rail",
+        "line_key": "line_2",
+        "priority": 2,
+        "color": "#005b9f"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.1656387103713,
+          47.624450468860594
+        ]
+      },
+      "properties": {
+        "id": "lr_47.624450468860594_-122.1656387103713",
+        "name": "Bel-Red/130th",
+        "mode_key": "light_rail",
+        "line_key": "line_2",
+        "priority": 2,
+        "color": "#005b9f"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.1389180661894,
+          47.63631178427832
+        ]
+      },
+      "properties": {
+        "id": "lr_47.63631178427832_-122.1389180661894",
+        "name": "Overlake Village",
+        "mode_key": "light_rail",
+        "line_key": "line_2",
+        "priority": 2,
+        "color": "#005b9f"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.13362671701552,
+          47.64484374162411
+        ]
+      },
+      "properties": {
+        "id": "lr_47.64484374162411_-122.13362671701552",
+        "name": "Redmond Technology",
+        "mode_key": "light_rail",
+        "line_key": "line_2",
+        "priority": 2,
+        "color": "#005b9f"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.10979824881989,
+          47.667265436948135
+        ]
+      },
+      "properties": {
+        "id": "lr_47.667265436948135_-122.10979824881989",
+        "name": "SE Redmond",
+        "mode_key": "light_rail",
+        "line_key": "line_2",
+        "priority": 2,
+        "color": "#005b9f"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.11847869543344,
+          47.671647049151716
+        ]
+      },
+      "properties": {
+        "id": "lr_47.671647049151716_-122.11847869543344",
+        "name": "Downtown Redmond",
+        "mode_key": "light_rail",
+        "line_key": "line_2",
+        "priority": 2,
+        "color": "#005b9f"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3252174314664,
+          47.736097368531475
+        ]
+      },
+      "properties": {
+        "id": "lr_47.736097368531475_-122.3252174314664",
+        "name": "Shoreline South/145th",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.32283480538337,
+          47.76407718285797
+        ]
+      },
+      "properties": {
+        "id": "lr_47.76407718285797_-122.32283480538337",
+        "name": "Shoreline North/185th",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.31477526648972,
+          47.78499821362351
+        ]
+      },
+      "properties": {
+        "id": "lr_47.78499821362351_-122.31477526648972",
+        "name": "Mountlake Terrace",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.29473737987549,
+          47.81563486754144
+        ]
+      },
+      "properties": {
+        "id": "lr_47.81563486754144_-122.29473737987549",
+        "name": "Lynnwood City Center",
+        "mode_key": "light_rail",
+        "line_key": "line_1",
+        "priority": 2,
+        "color": "#008f5a"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.31576079357427,
+          47.59920476478653
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_first_hill_13th_jackson_little_saigon",
+        "name": "13th & Jackson Little Saigon",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_first_hill",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3141618709698,
+          47.600638181017025
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_first_hill_14th_washington_central_district",
+        "name": "14th & Washington Central District",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_first_hill",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.32693543830706,
+          47.599199364732776
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_first_hill_5th_jackson",
+        "name": "5th & Jackson",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_first_hill",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3232149587753,
+          47.599203434703576
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_first_hill_7th_jackson",
+        "name": "7th & Jackson",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_first_hill",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.32099034711163,
+          47.61805337744421
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_first_hill_broadway_howell_terminus",
+        "name": "Broadway & Howell Terminus",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_first_hill",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.32088213078492,
+          47.60986363777218
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_first_hill_broadway_marion",
+        "name": "Broadway & Marion",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_first_hill",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.32090141945277,
+          47.61429818269071
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_first_hill_broadway_pike",
+        "name": "Broadway & Pike",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_first_hill",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.32076149690117,
+          47.61506256526522
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_first_hill_broadway_pine",
+        "name": "Broadway & Pine",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_first_hill",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.320713132788,
+          47.60546821157597
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_first_hill_broadway_terrace",
+        "name": "Broadway & Terrace",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_first_hill",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.32019773198465,
+          47.6017383431655
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_first_hill_broadway_yesler",
+        "name": "Broadway & Yesler",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_first_hill",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3225307142144,
+          47.59562040619875
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_first_hill_charles_street_maintenance_facility",
+        "name": "Charles Street - Maintenance Facility",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_first_hill",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.33320077607759,
+          47.59919718892496
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_first_hill_occidental_mall_pioneer_square",
+        "name": "Occidental Mall Pioneer Square",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_first_hill",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3323062300807,
+          47.62763822347316
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_south_lake_union_fairview_campus_drive",
+        "name": "Fairview & Campus Drive",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_south_lake_union",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.33643664489894,
+          47.625902064922876
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_south_lake_union_lake_union_park",
+        "name": "Lake Union Park",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_south_lake_union",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.33717970514908,
+          47.62435176549452
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_south_lake_union_terry_mercer",
+        "name": "Terry & Mercer",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_south_lake_union",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.33721660085351,
+          47.621385127992895
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_south_lake_union_terry_thomas",
+        "name": "Terry & Thomas",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_south_lake_union",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.33782619250353,
+          47.615543722490266
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_south_lake_union_westlake_7th",
+        "name": "Westlake & 7th",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_south_lake_union",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3384725094065,
+          47.61791113504585
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_south_lake_union_westlake_9th",
+        "name": "Westlake & 9th",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_south_lake_union",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3383536422849,
+          47.618095500510016
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_south_lake_union_westlake_denny",
+        "name": "Westlake & Denny",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_south_lake_union",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.33734657457208,
+          47.613077441351905
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_south_lake_union_westlake_hub",
+        "name": "Westlake Hub",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_south_lake_union",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.33852826648204,
+          47.62432756050171
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_south_lake_union_westlake_mercer",
+        "name": "Westlake & Mercer",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_south_lake_union",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.33854908258428,
+          47.621460005863625
+        ]
+      },
+      "properties": {
+        "id": "sc_streetcar_south_lake_union_westlake_thomas",
+        "name": "Westlake & Thomas",
+        "mode_key": "streetcar",
+        "line_key": "streetcar_south_lake_union",
+        "priority": 1,
+        "color": "#f28c28"
+      }
+    }
+  ]
+}

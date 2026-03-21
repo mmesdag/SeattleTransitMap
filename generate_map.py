@@ -1,4 +1,5 @@
 import math
+import json
 import re
 from io import BytesIO
 
@@ -8,6 +9,11 @@ import requests
 from branca.element import Element
 from PIL import Image
 from pyproj import Transformer
+
+from settings import (
+    RAPIDRIDE_STOP_EXCLUDE_NEAR_RAIL_OR_STREETCAR_METERS,
+    RAPIDRIDE_STOP_MIN_DISTANCE_METERS,
+)
 
 
 PRIORITY_ORDER = {
@@ -615,6 +621,100 @@ def add_or_update_stop(stop_points, stop_id, coords, name, color, priority, mode
         }
 
 
+def filter_rapidride_stops_near_other_modes(stop_points, exclusion_distance_meters):
+    if exclusion_distance_meters is None or exclusion_distance_meters <= 0:
+        return
+
+    non_rapidride_coords = []
+    for stop in stop_points.values():
+        if stop.get("mode_key") not in {"light_rail", "streetcar"}:
+            continue
+        lat, lon = stop.get("coords", (None, None))
+        if lat is None or lon is None:
+            continue
+        non_rapidride_coords.append((lat, lon))
+
+    if not non_rapidride_coords:
+        return
+
+    rapidride_stop_ids_to_remove = []
+    for stop_id, stop in stop_points.items():
+        if stop.get("mode_key") != "rapidride":
+            continue
+        lat, lon = stop.get("coords", (None, None))
+        if lat is None or lon is None:
+            continue
+
+        if any(
+            distance_meters(lat, lon, other_lat, other_lon) <= exclusion_distance_meters
+            for other_lat, other_lon in non_rapidride_coords
+        ):
+            rapidride_stop_ids_to_remove.append(stop_id)
+
+    for stop_id in rapidride_stop_ids_to_remove:
+        stop_points.pop(stop_id, None)
+
+
+def filter_rapidride_stops_by_min_distance(stop_points, min_distance_meters):
+    if min_distance_meters is None or min_distance_meters <= 0:
+        return
+
+    rapidride_stop_ids = sorted(
+        stop_id
+        for stop_id, stop in stop_points.items()
+        if stop.get("mode_key") == "rapidride"
+    )
+
+    kept_points = []
+    rapidride_stop_ids_to_remove = []
+
+    for stop_id in rapidride_stop_ids:
+        stop = stop_points.get(stop_id, {})
+        lat, lon = stop.get("coords", (None, None))
+        if lat is None or lon is None:
+            continue
+
+        if any(
+            distance_meters(lat, lon, kept_lat, kept_lon) <= min_distance_meters
+            for kept_lat, kept_lon in kept_points
+        ):
+            rapidride_stop_ids_to_remove.append(stop_id)
+            continue
+
+        kept_points.append((lat, lon))
+
+    for stop_id in rapidride_stop_ids_to_remove:
+        stop_points.pop(stop_id, None)
+
+
+def save_stops_geojson(stop_points, output_file):
+    features = []
+    for stop_id, stop in sorted(stop_points.items()):
+        lat, lon = stop.get("coords", (None, None))
+        if lat is None or lon is None:
+            continue
+
+        features.append(
+            {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [lon, lat]},
+                "properties": {
+                    "id": str(stop_id),
+                    "name": stop.get("name", ""),
+                    "mode_key": stop.get("mode_key", "unknown"),
+                    "line_key": stop.get("line_key", "unknown"),
+                    "priority": stop.get("priority"),
+                    "color": stop.get("color"),
+                },
+            }
+        )
+
+    feature_collection = {"type": "FeatureCollection", "features": features}
+    with open(output_file, "w", encoding="utf-8") as geojson_file:
+        json.dump(feature_collection, geojson_file, ensure_ascii=False, indent=2)
+    print(f"Transit stops GeoJSON successfully generated and saved to {output_file}")
+
+
 def collect_light_rail(route_segments, stop_points):
     params = {
         "where": "1=1",
@@ -970,12 +1070,19 @@ def add_filter_controls(map_object, line_labels):
                 showStopNames = stopNamesParam === '1';
             }}
 
+            const panelParam = params.get('panel');
+            let panelCollapsed = null;
+            if (panelParam === 'hidden' || panelParam === 'shown') {{
+                panelCollapsed = panelParam === 'hidden';
+            }}
+
             return {{
                 hasCategories: categoriesParam.length > 0,
                 hasLines: linesParam.length > 0,
                 categories,
                 lines,
                 showStopNames,
+                panelCollapsed,
             }};
         }}
 
@@ -989,10 +1096,13 @@ def add_filter_controls(map_object, line_labels):
             const enabledLines = Array.from(readEnabledSet('.line-toggle', 'data-line')).sort();
             const stopNameToggle = document.getElementById('toggle-stop-names');
             const showStopNames = !stopNameToggle || stopNameToggle.checked;
+            const filterPanelBody = document.getElementById('transit-filter-body');
+            const panelCollapsed = Boolean(filterPanelBody && filterPanelBody.style.display === 'none');
 
             params.set('categories', enabledCategories.join(','));
             params.set('lines', enabledLines.join(','));
             params.set('stop_names', showStopNames ? '1' : '0');
+            params.set('panel', panelCollapsed ? 'hidden' : 'shown');
 
             const nextQuery = params.toString();
             const nextUrl = `${{window.location.pathname}}${{nextQuery ? `?${{nextQuery}}` : ''}}${{window.location.hash || ''}}`;
@@ -1025,6 +1135,8 @@ def add_filter_controls(map_object, line_labels):
             document.querySelectorAll('.category-toggle').forEach((checkbox) => {{
                 updateCategoryState(checkbox.getAttribute('data-category'));
             }});
+
+            return state;
         }}
 
         function setVisible(element, visible) {{
@@ -1083,12 +1195,20 @@ def add_filter_controls(map_object, line_labels):
 
         const filterPanelBody = document.getElementById('transit-filter-body');
         const filterPanelToggle = document.getElementById('toggle-filter-panel');
+        function setFilterPanelCollapsed(collapsed) {{
+            if (!filterPanelBody || !filterPanelToggle) {{
+                return;
+            }}
+            filterPanelBody.style.display = collapsed ? 'none' : 'flex';
+            filterPanelToggle.textContent = collapsed ? 'Show' : 'Hide';
+        }}
+
         if (filterPanelBody && filterPanelToggle) {{
             let panelCollapsed = false;
             filterPanelToggle.addEventListener('click', () => {{
                 panelCollapsed = !panelCollapsed;
-                filterPanelBody.style.display = panelCollapsed ? 'none' : 'flex';
-                filterPanelToggle.textContent = panelCollapsed ? 'Show' : 'Hide';
+                setFilterPanelCollapsed(panelCollapsed);
+                writeStateToUrl();
             }});
         }}
 
@@ -1132,7 +1252,10 @@ def add_filter_controls(map_object, line_labels):
             }});
         }}
 
-        applyStateFromUrl();
+        const initialState = applyStateFromUrl();
+        if (initialState && initialState.panelCollapsed !== null) {{
+            setFilterPanelCollapsed(initialState.panelCollapsed);
+        }}
         writeStateToUrl();
 
         window.setTimeout(applyTransitFilters, 400);
@@ -1242,6 +1365,14 @@ def generate_map():
     collect_rapidride(route_segments, stop_points)
     collect_streetcar(route_segments, stop_points)
     collect_light_rail(route_segments, stop_points)
+    filter_rapidride_stops_near_other_modes(
+        stop_points,
+        RAPIDRIDE_STOP_EXCLUDE_NEAR_RAIL_OR_STREETCAR_METERS,
+    )
+    filter_rapidride_stops_by_min_distance(
+        stop_points,
+        RAPIDRIDE_STOP_MIN_DISTANCE_METERS,
+    )
 
     line_labels = {
         "line_1": "1 Line",
@@ -1311,6 +1442,9 @@ def generate_map():
     html_output_file = "index.html"
     m.save(html_output_file)
     print(f"Transit map successfully generated and saved to {html_output_file}")
+
+    stops_geojson_output_file = "stops.geojson"
+    save_stops_geojson(stop_points, stops_geojson_output_file)
 
 if __name__ == "__main__":
     generate_map()
