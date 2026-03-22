@@ -11,12 +11,15 @@ from PIL import Image
 from pyproj import Transformer
 
 from settings import (
+    ENABLE_TROLLEYBUS,
     RAPIDRIDE_STOP_EXCLUDE_NEAR_RAIL_OR_STREETCAR_METERS,
     RAPIDRIDE_STOP_MIN_DISTANCE_METERS,
+    TROLLEYBUS_STOP_MIN_DISTANCE_METERS,
 )
 
 
 PRIORITY_ORDER = {
+    "trolleybus": -1,
     "rapidride": 0,
     "streetcar": 1,
     "light_rail": 2,
@@ -71,6 +74,7 @@ STREETCAR_STOPS_URL = (
     "b2b4e354334d4dbe8f7925a6fb7e8ec0/geojson?layers=0"
 )
 RAPIDRIDE_REFS = {"A", "B", "C", "D", "E", "F", "G", "H"}
+TROLLEYBUS_LINE_NUMS = {1, 2, 3, 4, 5, 6, 7, 10, 12, 13, 14, 36, 43, 44, 49, 70}
 RAPIDRIDE_NUM_TO_REF = {
     # Current King County GIS schema (A-H)
     671: "A",
@@ -88,6 +92,7 @@ WA_NORTH_FEET_TO_WGS84 = Transformer.from_crs("EPSG:2926", "EPSG:4326", always_x
 LINE_COLORS = {
     "line_1": "#46b97a",
     "line_2": "#3a8fd6",
+    "trolleybus": "#b07bd8",
     "rapidride": "#ef6a78",
     "streetcar": "#f6ad55",
 }
@@ -95,6 +100,7 @@ LINE_COLORS = {
 STOP_COLORS = {
     "line_1": "#008f5a",
     "line_2": "#005b9f",
+    "trolleybus": "#7a3fb3",
     "rapidride": "#e31837",
     "streetcar": "#f28c28",
 }
@@ -283,6 +289,39 @@ def get_rapidride_refs_from_stop_properties(properties):
 
     refs = sorted(token for token in route_tokens if token in RAPIDRIDE_REFS)
     return refs
+
+
+def get_trolleybus_line_nums_from_stop_properties(properties):
+    route_text_candidates = [
+        properties.get("ROUTE_LIST"),
+        properties.get("ROUTES"),
+        properties.get("ROUTE"),
+    ]
+    route_nums = set()
+    for value in route_text_candidates:
+        for token in re.findall(r"\b\d+\b", str(value or "")):
+            route_nums.add(int(token))
+
+    return sorted(route_num for route_num in route_nums if route_num in TROLLEYBUS_LINE_NUMS)
+
+
+def get_bus_stop_name(properties):
+    for key in ("STOP_NAME", "NAME"):
+        value = str(properties.get(key) or "").strip()
+        if value:
+            return value
+
+    cross_street_name = str(
+        properties.get("CROSS_STREET_NAME")
+        or properties.get("HASTUS_CROSS_STREET_NAME")
+        or properties.get("CF_CROSS_STREETNAME")
+        or ""
+    ).strip()
+    if cross_street_name:
+        return simplify_rapidride_stop_label(cross_street_name)
+
+    stop_id = properties.get("STOP_ID")
+    return f"Stop {stop_id}" if stop_id else ""
 
 
 def get_rapidride_stop_name(properties):
@@ -687,6 +726,38 @@ def filter_rapidride_stops_by_min_distance(stop_points, min_distance_meters):
         stop_points.pop(stop_id, None)
 
 
+def filter_trolleybus_stops_by_min_distance(stop_points, min_distance_meters):
+    if min_distance_meters is None or min_distance_meters <= 0:
+        return
+
+    trolleybus_stop_ids = sorted(
+        stop_id
+        for stop_id, stop in stop_points.items()
+        if stop.get("mode_key") == "trolleybus"
+    )
+
+    kept_points = []
+    trolleybus_stop_ids_to_remove = []
+
+    for stop_id in trolleybus_stop_ids:
+        stop = stop_points.get(stop_id, {})
+        lat, lon = stop.get("coords", (None, None))
+        if lat is None or lon is None:
+            continue
+
+        if any(
+            distance_meters(lat, lon, kept_lat, kept_lon) <= min_distance_meters
+            for kept_lat, kept_lon in kept_points
+        ):
+            trolleybus_stop_ids_to_remove.append(stop_id)
+            continue
+
+        kept_points.append((lat, lon))
+
+    for stop_id in trolleybus_stop_ids_to_remove:
+        stop_points.pop(stop_id, None)
+
+
 def save_stops_geojson(stop_points, output_file):
     features = []
     for stop_id, stop in sorted(stop_points.items()):
@@ -862,6 +933,72 @@ def collect_rapidride(route_segments, stop_points):
             update_rapidride_merged_stop_name(stop_points, stop_id, stop_cross_street)
 
 
+def collect_trolleybus(route_segments, stop_points):
+    route_num_csv = ",".join(str(route_num) for route_num in sorted(TROLLEYBUS_LINE_NUMS))
+    where_clause = f"ROUTE_NUM in ({route_num_csv})"
+    features = fetch_geojson(
+        RAPIDRIDE_LINES_URL,
+        params={"where": where_clause, "outFields": "ROUTE_NUM", "f": "geojson"},
+    ).get("features", [])
+
+    for feature in features:
+        props = feature.get("properties", {})
+        route_num = props.get("ROUTE_NUM")
+        if route_num not in TROLLEYBUS_LINE_NUMS:
+            continue
+
+        for line in split_line_geometry(feature.get("geometry", {})):
+            coords = to_lat_lon_pairs(line)
+            if not coords:
+                continue
+            route_segments.append({
+                "priority": PRIORITY_ORDER["trolleybus"],
+                "coords": coords,
+                "color": LINE_COLORS["trolleybus"],
+                "weight": 3,
+                "tooltip": f"Trolleybus {route_num}",
+                "mode_key": "trolleybus",
+                "line_key": f"trolleybus_{route_num}",
+            })
+
+    stop_features = fetch_all_geojson_features(
+        RAPIDRIDE_STOPS_URL,
+        params={"where": "1=1", "outFields": "*", "f": "geojson"},
+    )
+    for feature in stop_features:
+        props = feature.get("properties", {})
+        if props.get("IN_SERVICE_FLAG") not in {None, "", "Y"}:
+            continue
+
+        matched_route_nums = get_trolleybus_line_nums_from_stop_properties(props)
+        if not matched_route_nums:
+            continue
+
+        geometry = feature.get("geometry", {})
+        if geometry.get("type") != "Point":
+            continue
+        lon, lat = geometry.get("coordinates", [None, None])
+        if lon is None or lat is None:
+            continue
+        lon, lat = normalize_to_wgs84(lon, lat)
+
+        route_num = matched_route_nums[0]
+        line_key = f"trolleybus_{route_num}"
+        stop_name = get_bus_stop_name(props)
+        stop_id = str(props.get("STOP_ID") or props.get("OBJECTID") or f"tb_{route_num}_{lat}_{lon}")
+
+        add_or_update_stop(
+            stop_points,
+            stop_id,
+            (lat, lon),
+            stop_name,
+            STOP_COLORS["trolleybus"],
+            PRIORITY_ORDER["trolleybus"],
+            "trolleybus",
+            line_key,
+        )
+
+
 def collect_streetcar(route_segments, stop_points):
     features = fetch_geojson(STREETCAR_LINES_URL).get("features", [])
     streetcar_segments = []
@@ -934,13 +1071,23 @@ def collect_streetcar(route_segments, stop_points):
         )
 
 
+def line_label_sort_key(line_item):
+    line_key, label = line_item
+    if line_key.startswith("trolleybus_"):
+        line_suffix = line_key.split("_", 1)[1]
+        if line_suffix.isdigit():
+            return (0, int(line_suffix), label.lower())
+    return (1, label.lower())
+
+
 def add_filter_controls(map_object, line_labels):
     category_labels = {
         "light_rail": "Light Rail",
         "streetcar": "Streetcar",
         "rapidride": "RapidRide",
+        "trolleybus": "Trolleybus",
     }
-    sorted_lines = sorted(line_labels.items(), key=lambda item: item[1].lower())
+    sorted_lines = sorted(line_labels.items(), key=line_label_sort_key)
 
     lines_by_category = {key: [] for key in category_labels}
     for line_key, label in sorted_lines:
@@ -950,12 +1097,16 @@ def add_filter_controls(map_object, line_labels):
             category = "streetcar"
         elif line_key.startswith("rapidride_"):
             category = "rapidride"
+        elif line_key.startswith("trolleybus_"):
+            category = "trolleybus"
         else:
             continue
         lines_by_category[category].append((line_key, label))
 
     category_section_html = ""
     for category_key, category_label in category_labels.items():
+        if not lines_by_category.get(category_key):
+            continue
         category_id = f"category-{category_key}"
         line_items_html = "".join(
             (
@@ -1362,6 +1513,8 @@ def generate_map():
 
     route_segments = []
     stop_points = {}
+    if ENABLE_TROLLEYBUS:
+        collect_trolleybus(route_segments, stop_points)
     collect_rapidride(route_segments, stop_points)
     collect_streetcar(route_segments, stop_points)
     collect_light_rail(route_segments, stop_points)
@@ -1373,6 +1526,11 @@ def generate_map():
         stop_points,
         RAPIDRIDE_STOP_MIN_DISTANCE_METERS,
     )
+    if ENABLE_TROLLEYBUS:
+        filter_trolleybus_stops_by_min_distance(
+            stop_points,
+            TROLLEYBUS_STOP_MIN_DISTANCE_METERS,
+        )
 
     line_labels = {
         "line_1": "1 Line",
@@ -1384,6 +1542,8 @@ def generate_map():
         line_key = segment.get("line_key", "unknown")
         if line_key.startswith("rapidride_"):
             line_labels[line_key] = line_key.split('_', 1)[1].upper()
+        elif line_key.startswith("trolleybus_"):
+            line_labels[line_key] = line_key.split('_', 1)[1]
         elif line_key.startswith("streetcar_"):
             line_labels[line_key] = segment.get("tooltip", "Streetcar")
 

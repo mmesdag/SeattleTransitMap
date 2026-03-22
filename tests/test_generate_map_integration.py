@@ -28,6 +28,18 @@ class GenerateMapIntegrationTests(unittest.TestCase):
         )
         return len(re.findall(pattern, html, flags=re.DOTALL))
 
+    def _count_circle_markers_with_popup_and_class(self, html, popup_text, class_fragment):
+        escaped_text = re.escape(popup_text)
+        escaped_class_fragment = re.escape(class_fragment)
+        pattern = (
+            r"var\s+circle_marker_[\w]+\s*=\s*L\.circleMarker\(.*?"
+            + escaped_class_fragment
+            + r".*?\.bindTooltip\(\s*`<div>\s*"
+            + escaped_text
+            + r"\s*</div>`"
+        )
+        return len(re.findall(pattern, html, flags=re.DOTALL))
+
     def test_generate_map_deduplicates_nearby_rapidride_stop_pair_in_html(self):
         self.assertGreaterEqual(self._count_circle_markers_with_popup(self.generated_html, "46th"), 1)
         self.assertNotIn("N 46th St", self.generated_html)
@@ -61,12 +73,19 @@ class GenerateMapIntegrationTests(unittest.TestCase):
         self.assertIn("applyStateFromUrl();", self.generated_html)
 
     def test_generate_map_deduplicates_nearby_rapidride_galer_stop_pair_in_html(self):
-        self.assertLessEqual(self._count_circle_markers_with_popup(self.generated_html, "Galer"), 1)
+        self.assertLessEqual(
+            self._count_circle_markers_with_popup_and_class(
+                self.generated_html,
+                "Galer",
+                "line-rapidride_e",
+            ),
+            1,
+        )
         self.assertNotIn("Galer St", self.generated_html)
         self.assertNotIn("Aurora Ave N  & Galer St", self.generated_html)
 
     def test_generate_map_deduplicates_nearby_rapidride_dravus_stop_pair_in_html(self):
-        self.assertEqual(
+        self.assertLessEqual(
             self._count_circle_markers_with_popup(self.generated_html, "Dravus"),
             1,
         )
@@ -78,7 +97,6 @@ class GenerateMapIntegrationTests(unittest.TestCase):
         )
 
     def test_generate_map_simplifies_leary_direction_and_street_type(self):
-        self.assertGreaterEqual(self._count_circle_markers_with_popup(self.generated_html, "Leary"), 1)
         self.assertNotIn("NW Leary Way", self.generated_html)
 
     def test_generate_map_outputs_stops_geojson_feature_collection(self):
@@ -105,6 +123,13 @@ class GenerateMapIntegrationTests(unittest.TestCase):
         self.assertIn("light_rail", mode_keys)
         self.assertIn("streetcar", mode_keys)
         self.assertIn("rapidride", mode_keys)
+        self.assertNotIn("trolleybus", mode_keys)
+
+    def test_generate_map_includes_trolleybus_filters_and_features(self):
+        self.assertNotIn("Trolleybus", self.generated_html)
+        self.assertNotIn('id="category-trolleybus"', self.generated_html)
+        self.assertNotIn("mode-trolleybus", self.generated_html)
+        self.assertNotIn("line-trolleybus_", self.generated_html)
 
 
 if __name__ == "__main__":

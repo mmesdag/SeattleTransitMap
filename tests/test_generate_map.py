@@ -14,12 +14,115 @@ from generate_map import (
     simplify_rapidride_stop_label,
     fetch_all_geojson_features,
     collect_rapidride,
+    get_trolleybus_line_nums_from_stop_properties,
+    collect_trolleybus,
+    line_label_sort_key,
     filter_rapidride_stops_near_other_modes,
     filter_rapidride_stops_by_min_distance,
+    filter_trolleybus_stops_by_min_distance,
 )
 
 
 class GenerateMapHelperTests(unittest.TestCase):
+    def test_line_label_sort_key_sorts_trolleybus_numerically(self):
+        line_items = [
+            ("trolleybus_1", "1"),
+            ("trolleybus_10", "10"),
+            ("trolleybus_2", "2"),
+            ("rapidride_e", "E"),
+        ]
+
+        sorted_items = sorted(line_items, key=line_label_sort_key)
+
+        self.assertEqual(
+            [line_key for line_key, _ in sorted_items],
+            ["trolleybus_1", "trolleybus_2", "trolleybus_10", "rapidride_e"],
+        )
+
+    def test_filter_trolleybus_stops_by_min_distance_removes_close_trolleybus_stop(self):
+        stop_points = {
+            "tb_1": {
+                "coords": (47.6000, -122.3300),
+                "name": "Stop A",
+                "color": "#7a3fb3",
+                "priority": -1,
+                "mode_key": "trolleybus",
+                "line_key": "trolleybus_1",
+            },
+            "tb_2": {
+                "coords": (47.6010, -122.3300),
+                "name": "Stop B",
+                "color": "#7a3fb3",
+                "priority": -1,
+                "mode_key": "trolleybus",
+                "line_key": "trolleybus_1",
+            },
+            "rr_1": {
+                "coords": (47.6011, -122.3300),
+                "name": "RapidRide Stop",
+                "color": "#e31837",
+                "priority": 0,
+                "mode_key": "rapidride",
+                "line_key": "rapidride_e",
+            },
+        }
+
+        filter_trolleybus_stops_by_min_distance(stop_points, min_distance_meters=500)
+
+        self.assertIn("tb_1", stop_points)
+        self.assertNotIn("tb_2", stop_points)
+        self.assertIn("rr_1", stop_points)
+
+    def test_filter_trolleybus_stops_by_min_distance_keeps_far_trolleybus_stops(self):
+        stop_points = {
+            "tb_1": {
+                "coords": (47.6000, -122.3300),
+                "name": "Stop A",
+                "color": "#7a3fb3",
+                "priority": -1,
+                "mode_key": "trolleybus",
+                "line_key": "trolleybus_1",
+            },
+            "tb_2": {
+                "coords": (47.6100, -122.3300),
+                "name": "Stop B",
+                "color": "#7a3fb3",
+                "priority": -1,
+                "mode_key": "trolleybus",
+                "line_key": "trolleybus_1",
+            },
+        }
+
+        filter_trolleybus_stops_by_min_distance(stop_points, min_distance_meters=500)
+
+        self.assertIn("tb_1", stop_points)
+        self.assertIn("tb_2", stop_points)
+
+    def test_filter_trolleybus_stops_by_min_distance_does_not_remove_non_trolleybus(self):
+        stop_points = {
+            "tb_1": {
+                "coords": (47.6000, -122.3300),
+                "name": "Stop A",
+                "color": "#7a3fb3",
+                "priority": -1,
+                "mode_key": "trolleybus",
+                "line_key": "trolleybus_1",
+            },
+            "lr_1": {
+                "coords": (47.6005, -122.3300),
+                "name": "Light Rail Stop",
+                "color": "#008f5a",
+                "priority": 2,
+                "mode_key": "light_rail",
+                "line_key": "line_1",
+            },
+        }
+
+        filter_trolleybus_stops_by_min_distance(stop_points, min_distance_meters=500)
+
+        self.assertIn("tb_1", stop_points)
+        self.assertIn("lr_1", stop_points)
+
     def test_filter_rapidride_stops_by_min_distance_removes_close_rapidride_stop(self):
         stop_points = {
             "rr_1": {
@@ -524,6 +627,16 @@ class GenerateMapHelperTests(unittest.TestCase):
             [],
         )
 
+    def test_get_trolleybus_line_nums_from_stop_properties(self):
+        self.assertEqual(
+            get_trolleybus_line_nums_from_stop_properties({"ROUTE_LIST": "1 2 13 40"}),
+            [1, 2, 13],
+        )
+        self.assertEqual(
+            get_trolleybus_line_nums_from_stop_properties({"ROUTE_LIST": "A E 671"}),
+            [],
+        )
+
     def test_get_rapidride_stop_name_prefers_primary_fields(self):
         self.assertEqual(
             get_rapidride_stop_name({"STOP_NAME": "Aurora Ave N & N 46th St", "ON_STREET_NAME": "Aurora Ave N"}),
@@ -607,6 +720,56 @@ class GenerateMapHelperTests(unittest.TestCase):
 
         self.assertIn("e1", stop_points)
         self.assertNotIn("n1", stop_points)
+
+    def test_collect_trolleybus_includes_only_configured_lines(self):
+        route_segments = []
+        stop_points = {}
+
+        trolley_lines = {
+            "features": [
+                {
+                    "properties": {"ROUTE_NUM": 1},
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [
+                            [-122.35, 47.62],
+                            [-122.34, 47.63],
+                        ],
+                    },
+                },
+                {
+                    "properties": {"ROUTE_NUM": 40},
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [
+                            [-122.30, 47.60],
+                            [-122.31, 47.61],
+                        ],
+                    },
+                },
+            ]
+        }
+        bus_stops = [
+            {
+                "properties": {"STOP_ID": "t1", "STOP_NAME": "A", "ROUTE_LIST": "1 40"},
+                "geometry": {"type": "Point", "coordinates": [-122.34, 47.63]},
+            },
+            {
+                "properties": {"STOP_ID": "t2", "STOP_NAME": "B", "ROUTE_LIST": "40"},
+                "geometry": {"type": "Point", "coordinates": [-122.31, 47.61]},
+            },
+        ]
+
+        with patch("generate_map.fetch_geojson", return_value=trolley_lines), patch(
+            "generate_map.fetch_all_geojson_features", return_value=bus_stops
+        ):
+            collect_trolleybus(route_segments, stop_points)
+
+        self.assertTrue(any(segment["line_key"] == "trolleybus_1" for segment in route_segments))
+        self.assertFalse(any(segment["line_key"] == "trolleybus_40" for segment in route_segments))
+        self.assertIn("t1", stop_points)
+        self.assertEqual(stop_points["t1"]["line_key"], "trolleybus_1")
+        self.assertNotIn("t2", stop_points)
 
 
 if __name__ == "__main__":
